@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
-    <title>Big Book of Words</title>
+    <title>Gabriel and Sami's Big Book of Words</title>
     <style>
       * {
         margin: 0;
@@ -30,9 +30,9 @@
         overflow: hidden;
         background-color: #87CEEB; /* Sky blue fallback color */
         background-image: url("background.jpg");
-        background-position: center;
+        background-position: center top;
         background-repeat: no-repeat;
-        background-size: cover;
+        background-size: contain;
         background-attachment: fixed;
         display: flex;
         flex-direction: column;
@@ -327,7 +327,8 @@
       /* Mobile-specific fixes */
       @media (max-width: 768px) {
         body {
-          background-size: cover;
+          background-size: contain;
+          background-position: center top;
           min-height: 100vh;
           min-height: -webkit-fill-available;
         }
@@ -359,7 +360,6 @@
 
     <!-- Main menu -->
     <div id="mainMenu" class="main-container">
-      <h1>Big Book of Words</h1>
       <div class="button-container">
         <button class="game-button" onclick="startGame(1)">
           Find the Page
