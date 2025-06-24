@@ -893,51 +893,24 @@
         document.getElementById("gameTitle").textContent = gameTitle;
 
         // Reset display
-        if (gameMode === 1) {
-          document.getElementById("slotContent").textContent = "?";
-        } else {
-          // Create slot reel for images
-          createImageReel();
-        }
+        document.getElementById("slotContent").textContent = "?";
         document.querySelector(".slot-machine").style.display = "block";
 
         // Start rolling after a short delay
         setTimeout(() => rollSlotMachine(), 300);
       }
 
-      function createImageReel() {
-        const slotContent = document.getElementById("slotContent");
-        slotContent.innerHTML = `<div class="slot-reel-container" id="reelContainer"></div>`;
-        
-        const reelContainer = document.getElementById("reelContainer");
-        const reel = document.createElement("div");
-        reel.className = "slot-reel";
-        reel.id = "imageReel";
-        
-        // Add multiple copies of images for smooth scrolling
-        for (let i = 0; i < 3; i++) {
-          sampleImages.slice(0, 20).forEach((src) => {
-            const item = document.createElement("div");
-            item.className = "reel-item";
-            item.innerHTML = `<img src="${src}" alt="Slot image">`;
-            reel.appendChild(item);
-          });
-        }
-        
-        reelContainer.appendChild(reel);
-      }
-
       function rollSlotMachine() {
         if (isRolling) return;
         isRolling = true;
 
+        const slotContent = document.getElementById("slotContent");
+        const duration = 3000; // 3 seconds of rolling
+        const interval = 100; // Update every 100ms
+        let elapsed = 0;
+
         if (currentGame === 1) {
           // Original number rolling for page numbers
-          const slotContent = document.getElementById("slotContent");
-          const duration = 3000; // 3 seconds of rolling
-          const interval = 100; // Update every 100ms
-          let elapsed = 0;
-
           const rollInterval = setInterval(() => {
             elapsed += interval;
             playSound("roll");
@@ -960,44 +933,57 @@
             }
           }, interval);
         } else {
-          // Smooth reel animation for images
-          const reel = document.getElementById("imageReel");
-          const finalIndex = Math.floor(Math.random() * 20);
-          const finalPosition = -(finalIndex * 180);
+          // Smoother animation for images with crossfade
+          slotContent.style.transition = "opacity 0.1s ease";
           
-          // Set CSS variable for final position
-          reel.style.setProperty("--final-position", `${finalPosition}px`);
-          
-          // Start animation
-          reel.classList.add("animating");
-          
-          // Play rolling sounds
-          const soundInterval = setInterval(() => {
+          const rollInterval = setInterval(() => {
+            elapsed += interval;
             playSound("roll");
-          }, 100);
-          
-          // Stop after animation completes
-          setTimeout(() => {
-            clearInterval(soundInterval);
-            finalRoll();
-          }, 3000);
+
+            // Fade out quickly
+            slotContent.style.opacity = "0.3";
+            
+            setTimeout(() => {
+              // Show random image
+              const randomImage = sampleImages[Math.floor(Math.random() * sampleImages.length)];
+              slotContent.innerHTML = `<img src="${randomImage}" style="max-width: 180px; max-height: 180px; border-radius: 10px;">`;
+              
+              // Fade in quickly
+              slotContent.style.opacity = "1";
+            }, 50);
+
+            // Slow down near the end
+            if (elapsed >= duration - 1000) {
+              clearInterval(rollInterval);
+              slotContent.style.transition = "opacity 0.3s ease";
+              setTimeout(() => {
+                finalRoll();
+              }, 200);
+            }
+          }, interval);
         }
       }
 
       function finalRoll() {
+        const slotContent = document.getElementById("slotContent");
+        let finalResult;
+
         if (currentGame === 1) {
           // Final page number
-          const slotContent = document.getElementById("slotContent");
-          let finalResult;
           do {
             finalResult = Math.floor(Math.random() * (448 - 7 + 1)) + 7;
           } while (excludedPages.has(finalResult));
 
           slotContent.textContent = finalResult;
         } else {
-          // For images, the animation already positioned the reel
-          const reel = document.getElementById("imageReel");
-          reel.classList.remove("animating");
+          // Final image with smooth transition
+          slotContent.style.opacity = "0";
+          
+          setTimeout(() => {
+            finalResult = sampleImages[Math.floor(Math.random() * sampleImages.length)];
+            slotContent.innerHTML = `<img src="${finalResult}" style="max-width: 180px; max-height: 180px; border-radius: 10px;">`;
+            slotContent.style.opacity = "1";
+          }, 100);
         }
 
         playSound("win");
